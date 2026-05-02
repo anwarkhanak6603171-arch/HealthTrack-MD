@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Registration | HealthTrack MD</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .register-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .register-card {
+            width: 100%;
+            max-width: 400px;
+            padding: 3rem;
+            text-align: center;
+        }
+        .register-logo {
+            font-size: 3rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+        .register-card h2 {
+            margin-bottom: 2rem;
+            font-weight: 700;
+        }
+        .error-msg {
+            background: rgba(231, 29, 54, 0.2);
+            color: var(--danger);
+            padding: 0.75rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: none;
+            font-size: 0.875rem;
+        }
+        .success-msg {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+            padding: 0.75rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: none;
+            font-size: 0.875rem;
+        }
+        .info-msg {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-top: 1.5rem;
+        }
+        .info-msg a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="glass-bg"></div>
+    <div class="register-container">
+        <div class="register-card glass">
+            <div class="register-logo"><i class="fas fa-user-plus"></i></div>
+            <h2>Join HealthTrack <span>MD</span></h2>
+            <div id="error-box" class="error-msg">Registration failed</div>
+            <div id="success-box" class="success-msg">Account created successfully!</div>
+            <form id="register-form">
+                <div class="form-group" style="text-align: left;">
+                    <label for="username">Choose Username</label>
+                    <input type="text" id="username" name="username" placeholder="e.g. dr_smith" required>
+                </div>
+                <div class="form-group" style="text-align: left;">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn-submit" style="margin-top: 1rem;">Create Account</button>
+            </form>
+            <p class="info-msg">Already have an account? <a href="login.html">Login here</a></p>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '';
+        const registerForm = document.getElementById('register-form');
+        const errorBox = document.getElementById('error-box');
+        const successBox = document.getElementById('success-box');
+
+        registerForm.onsubmit = async (e) => {
+            e.preventDefault();
+            errorBox.style.display = 'none';
+            successBox.style.display = 'none';
+
+            const formData = new FormData(registerForm);
+            const data = Object.fromEntries(formData.entries());
+
+            try {
+                const response = await fetch(`${API_BASE}/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (response.ok) {
+                    successBox.style.display = 'block';
+                    registerForm.reset();
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 2000);
+                } else {
+                    const err = await response.json();
+                    errorBox.textContent = err.detail || 'Registration failed';
+                    errorBox.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                errorBox.textContent = 'Server connection failed';
+                errorBox.style.display = 'block';
+            }
+        };
+    </script>
+</body>
+</html>

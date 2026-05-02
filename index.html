@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doctor Dashboard | HealthTrack MD</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        if (!localStorage.getItem('doctor_token')) {
+            window.location.href = 'login.html';
+        }
+    </script>
+</head>
+<body>
+    <div class="glass-bg"></div>
+    
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-user-md"></i>
+                <h1>HealthTrack <span>MD</span></h1>
+            </div>
+            <div class="header-actions">
+                <span id="doctor-name" style="margin-right: 1.5rem; font-weight: 500;"></span>
+                <button id="add-patient-btn" class="btn-primary" style="display: inline-flex;">
+                    <i class="fas fa-plus"></i> Add Patient
+                </button>
+                <button id="logout-btn" class="btn-primary" style="background: rgba(255,255,255,0.05); margin-left: 1rem; border: 1px solid var(--glass-border);">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </header>
+
+        <main>
+            <section class="stats-overview">
+                <div class="stat-card">
+                    <span class="stat-label">Active Patients</span>
+                    <span id="total-count" class="stat-value">0</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Clinic Avg BMI</span>
+                    <span id="avg-bmi" class="stat-value">0.0</span>
+                </div>
+                <div class="stat-card highlight">
+                    <span class="stat-label">Security Protocol</span>
+                    <span class="stat-value" style="font-size: 1.2rem;"><i class="fas fa-shield-halved"></i> JWT Encrypted</span>
+                </div>
+            </section>
+
+            <section class="controls">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search-input" placeholder="Search medical records...">
+                </div>
+                <div class="filter-group">
+                    <select id="sort-select">
+                        <option value="">Sort By</option>
+                        <option value="name">Name</option>
+                        <option value="bmi">BMI</option>
+                        <option value="age">Age</option>
+                    </select>
+                </div>
+            </section>
+
+            <section class="patient-grid" id="patient-grid">
+                <div class="loader">Accessing secure database...</div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal for Adding/Editing Patient -->
+    <div id="patient-modal" class="modal">
+        <div class="modal-content glass">
+            <span class="close-modal">&times;</span>
+            <h2 id="modal-title">Clinical Record</h2>
+            <form id="patient-form">
+                <div class="form-group">
+                    <label for="p-id">Patient ID</label>
+                    <input type="text" id="p-id" name="id" placeholder="PXXX" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="p-name">Full Name</label>
+                        <input type="text" id="p-name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="p-city">City</label>
+                        <input type="text" id="p-city" name="city" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="p-age">Age</label>
+                        <input type="number" id="p-age" name="age" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="p-gender">Gender</label>
+                        <select id="p-gender" name="gender" required>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="p-height">Height (m)</label>
+                        <input type="number" id="p-height" name="height" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="p-weight">Weight (kg)</label>
+                        <input type="number" id="p-weight" name="weight" step="0.1" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="p-notes">Medical Notes & Diagnosis</label>
+                    <textarea id="p-notes" name="medical_notes" style="width: 100%; background: rgba(15, 23, 42, 0.5); border: 1px solid var(--glass-border); padding: 0.75rem 1rem; border-radius: 10px; color: white; outline: none; min-height: 100px;"></textarea>
+                </div>
+                <input type="hidden" id="form-mode" value="create">
+                <button type="submit" class="btn-submit">Update Medical Archive</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
