@@ -220,6 +220,18 @@ def delete_patient(patient_id: str, db: Session = Depends(get_db), current_user:
     db.commit()
     return None
 
-# Mount current directory to serve app.js, style.css, etc. 
-# This must be at the end to avoid shadowing API routes.
-app.mount("/", StaticFiles(directory=".", html=True), name="static")
+# Static files serving for assets (style.css, app.js, images)
+@app.get("/style.css")
+async def get_css():
+    return FileResponse("style.css")
+
+@app.get("/app.js")
+async def get_js():
+    return FileResponse("app.js")
+
+@app.get("/bakgrnd.jpg")
+async def get_bg():
+    return FileResponse("bakgrnd.jpg")
+
+# No more mounting "." to avoid Vercel recursion issues
+# app.mount("/", StaticFiles(directory=".", html=True), name="static")
