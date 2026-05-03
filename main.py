@@ -28,20 +28,24 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", 480))
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-# Initialize DB
-# Create database tables and seed initial data once at startup
-try:
-    models.Base.metadata.create_all(bind=engine)
-    db = database.SessionLocal()
-    if db.query(models.User).count() == 0:
-        print("Creating default doctor account: doctor / password123")
-        hashed_pwd = pwd_context.hash("password123")
-        db_user = models.User(username="doctor", hashed_password=hashed_pwd)
-        db.add(db_user)
-        db.commit()
-    db.close()
-except Exception as e:
-    print(f"Database initialization error: {e}")
+# Initialize DB with a safer check for Serverless
+def init_db():
+    try:
+        # Only run create_all if we are not in a locked state
+        models.Base.metadata.create_all(bind=engine)
+        db = database.SessionLocal()
+        if db.query(models.User).count() == 0:
+            print("Creating default doctor account...")
+            hashed_pwd = pwd_context.hash("password123")
+            db_user = models.User(username="doctor", hashed_password=hashed_pwd)
+            db.add(db_user)
+            db.commit()
+        db.close()
+    except Exception as e:
+        print(f"CRITICAL: Database initialization error: {e}")
+
+# Call init once at module load
+init_db()
 
 app = FastAPI(
     title="HealthTrack MD", 
@@ -58,14 +62,17 @@ app.add_middleware(
 
 # --- Static Files & Frontend ---
 @app.get("/")
+@app.get("/index.html")
 async def read_index():
     return FileResponse("index.html")
 
 @app.get("/login")
+@app.get("/login.html")
 async def read_login():
     return FileResponse("login.html")
 
 @app.get("/register")
+@app.get("/register.html")
 async def read_register():
     return FileResponse("register.html")
 
