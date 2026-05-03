@@ -29,17 +29,23 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 # Initialize DB
-models.Base.metadata.create_all(bind=engine)
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    seed_initial_doctor()
-    yield
+# Create database tables and seed initial data once at startup
+try:
+    models.Base.metadata.create_all(bind=engine)
+    db = database.SessionLocal()
+    if db.query(models.User).count() == 0:
+        print("Creating default doctor account: doctor / password123")
+        hashed_pwd = pwd_context.hash("password123")
+        db_user = models.User(username="doctor", hashed_password=hashed_pwd)
+        db.add(db_user)
+        db.commit()
+    db.close()
+except Exception as e:
+    print(f"Database initialization error: {e}")
 
 app = FastAPI(
     title="HealthTrack MD", 
-    description="Secure Clinical Portal for Doctors",
-    lifespan=lifespan
+    description="Secure Clinical Portal for Doctors"
 )
 
 app.add_middleware(
@@ -98,19 +104,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     if user is None:
         raise credentials_exception
     return user
-
-# --- Startup & Migration ---
-def seed_initial_doctor():
-    db = database.SessionLocal()
-    try:
-        if db.query(models.User).count() == 0:
-            print("Creating default doctor account: doctor / password123")
-            hashed_pwd = get_password_hash("password123")
-            db_user = models.User(username="doctor", hashed_password=hashed_pwd)
-            db.add(db_user)
-            db.commit()
-    finally:
-        db.close()
 
 # --- Auth Endpoints ---
 
